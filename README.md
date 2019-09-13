@@ -24,8 +24,8 @@ export ADF_PATH=~/esp-adf
 
 Load the example:
 ```bash
-git clone https://github.com/d3v1c3nv11/internet_radio_demo.git
-cd internet_radio_demo
+git clone https://github.com/d3v1c3nv11/dance_radio.git
+cd dance_radio
 make menuconfig
 ```
 Configure the example:
