@@ -1,6 +1,6 @@
-# Play HTTP aac Living stream
+# Dance Radio // WORK IN PROGRESS
 
-The demo plays a m3u downloaded from HTTP. 
+[![Watch the video](https://img.youtube.com/vi/gBpEz3MsBD0/maxresdefault.jpg)](https://youtu.be/gBpEz3MsBD0) 
 
 ## Compatibility
 
