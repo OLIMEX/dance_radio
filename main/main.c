@@ -591,15 +591,17 @@ void app_main(void)
 	
 
   ESP_LOGI(TAG, "Starting audio pipeline...");
-  	audio_pipeline_run(pipeline);
-              audio_element_info_t music_info = {0};
-            audio_element_getinfo(aac_decoder, &music_info);
-                  
-                audio_element_setinfo(i2s_stream_writer, &music_info); 
-                alc_volume_setup_set_channel(alc_el, music_info.channels);
-				alc_volume_setup_set_volume(alc_el, ALC_VOLUME_SET);
+  	 audio_pipeline_run(pipeline);
+  	 
+  	 // set sample rate of 538 Ibiza radio :)
+     audio_element_info_t music_info = {0};
+     audio_element_getinfo(aac_decoder, &music_info);	
+     music_info.sample_rates = 22050;
+     audio_element_setinfo(aac_decoder, &music_info);	
+  	
+  	tune_radio(5);//538 Ibiza
+
 	
-  
     while (1) {
 	       
 		led_strip_show(&led_strip);
