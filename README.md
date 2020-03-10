@@ -13,13 +13,21 @@ Prepare the audio board:
 
 - Connect speakers or headphones to the board.
 
+- Connect [MOD-LCD2.8RTP](https://www.olimex.com/Products/Modules/LCD/MOD-LCD2-8RTP/open-source-hardware) and [led stripe](https://www.olimex.com/Products/Components/LEDs/LED-STRIPE-8/) to UEXT connector using [UEXTx5](https://www.olimex.com/Products/Modules/Interface/UEXTx5/open-source-hardware) extender as follow:
+
+  ​	led stripe: VCC on pin 1, GND on pin 2, DATA on pin 3 
+  
+  (note: Only LED-STRIPE-8 is supported)
+
 # Get ESP-ADF
 ```bash
 cd ~/
 git clone --recursive https://github.com/espressif/esp-adf.git
 cd esp-adf
 git submodule update --init
-export ADF_PATH=~/esp-adf
+cd esp-idf
+./install.sh
+. ./export.sh
 ```
 
 Load the example:
@@ -48,9 +56,11 @@ Loudness ON: <mode>
 Loudness OFF: <record>
 ```
 
-Note: Patch is required to es8388 driver in esp-adf to enable speakers. From project directory run
-```bash
-patch $ADF_PATH/components/audio_hal/driver/es8388/es8388.c < es8388_fix_speaker_volume.patch 
-```
+
 
 Graphical part of project is based on loboris/ESP32_TFT_library https://github.com/loboris/ESP32_TFT_library
+
+
+
+known issues: audio stream is synchronized up to 30 sec after first start
+

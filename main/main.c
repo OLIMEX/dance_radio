@@ -126,7 +126,7 @@ struct led_strip_t led_strip = {
     .rgb_led_type = RGB_LED_TYPE_WS2812,
     .rmt_channel = RMT_CHANNEL_1,
     .rmt_interrupt_num = LED_STRIP_RMT_INTR_NUM,
-    .gpio = GPIO_NUM_19,
+    .gpio = UARTTX,
     .led_strip_buf_1 = led_strip_buf_1,
     .led_strip_buf_2 = led_strip_buf_2,
     .led_strip_length = LED_STRIP_LENGTH
@@ -217,7 +217,6 @@ static void disp_header(char *info)
 
 int _http_stream_event_handle(http_stream_event_msg_t *msg)
 {
-
     if (msg->event_id == HTTP_STREAM_RESOLVE_ALL_TRACKS) {
         return ESP_OK;
     }
@@ -309,6 +308,7 @@ void tune_radio(int radio_index){
  }
 void app_main(void)
 {
+ static int dee = 10 / portTICK_PERIOD_MS;
 	int ret;
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
@@ -334,8 +334,8 @@ void app_main(void)
 	
     spi_lobo_bus_config_t buscfg={
         .miso_io_num=PIN_NUM_MISO,				// set SPI MISO pin
-        .mosi_io_num=PIN_NUM_MOSI,				// set SPI MOSI pin
-        .sclk_io_num=PIN_NUM_CLK,				// set SPI CLK pin
+        .mosi_io_num=DISP_SPI_MOSI,				// set SPI MOSI pin
+        .sclk_io_num=DISP_SPI_CLK,				// set SPI CLK pin
         .quadwp_io_num=-1,
         .quadhd_io_num=-1,
 		.max_transfer_sz = 6*1024,
@@ -344,16 +344,16 @@ void app_main(void)
         .clock_speed_hz=8000000,                // Initial clock out at 8 MHz
         .mode=0,                                // SPI mode 0
         .spics_io_num=-1,                       // we will use external CS pin
-		.spics_ext_io_num=PIN_NUM_CS,           // external CS pin
+		.spics_ext_io_num=DISP_SPI_CS,           // external CS pin
 		.flags=LB_SPI_DEVICE_HALFDUPLEX,        // ALWAYS SET  to HALF DUPLEX MODE!! for display spi
     }; 
 		// we are using MISO as DC wire set MISO as GPIO
-		gpio_pad_select_gpio(PIN_NUM_DC);
-		gpio_set_direction(PIN_NUM_DC, GPIO_MODE_OUTPUT);
+		gpio_pad_select_gpio(DISP_SPI_CS);
+		gpio_set_direction(DISP_SPI_CS, GPIO_MODE_OUTPUT);
 		gpio_set_level(PIN_NUM_DC, 0);
- 		gpio_pad_select_gpio(PIN_NUM_CS);
-		gpio_set_direction(PIN_NUM_CS, GPIO_MODE_OUTPUT);
-		gpio_set_level(PIN_NUM_DC, 1);     
+ 		gpio_pad_select_gpio(DISP_SPI_CS);
+		gpio_set_direction(DISP_SPI_CS, GPIO_MODE_OUTPUT);
+		gpio_set_level(ILI9341_DC, 1);     
       ESP_LOGI(TAG, "[ * ]  Display %d ILI9341 initialized",CONFIG_EXAMPLE_DISPLAY_TYPE);
       
  
@@ -470,6 +470,9 @@ void app_main(void)
 
     ESP_LOGI(TAG, "[2.5] Link it together http_stream-->aac_decoder-->equalizer-->i2s_stream-->[codec_chip]");
     audio_pipeline_link(pipeline, (const char *[]) {"http",  "aac", "equalizer","alc", "i2s"}, 5);
+    
+    //audio_pipeline_link(pipeline, (const char *[]) {"http",  "aac", "i2s"}, 3);
+    
     vTaskDelay(500 / portTICK_RATE_MS);
 #endif
 #ifdef FORMAT_MP3
@@ -486,6 +489,7 @@ void app_main(void)
     audio_pipeline_link(pipeline, (const char *[]) {"http",  "mp3", "i2s"}, 3);
 #endif
     ESP_LOGI(TAG, "[2.6] Set up  uri (http as http_stream, aac as aac decoder, and default output is i2s)");
+       
     audio_element_set_uri(http_stream_reader, radio[radio_index << 1]);
 	curent_radio = radio_index;
     
@@ -532,7 +536,7 @@ void app_main(void)
 	vTaskDelay(100 / portTICK_RATE_MS);
     ESP_LOGI(TAG, "[ 5 ] Start audio_pipeline");
     
-    audio_pipeline_run(pipeline);
+    
     
      gpio_set_direction(get_green_led_gpio(), GPIO_MODE_OUTPUT);
      
@@ -585,14 +589,18 @@ void app_main(void)
     ESP_LOGI("blink", "led strip Init complete...");
     led_strip_clear(&led_strip);
 	
-	
+
+  ESP_LOGI(TAG, "Starting audio pipeline...");
+  	audio_pipeline_run(pipeline);
+  
+  
     while (1) {
 	       
 		led_strip_show(&led_strip);
         audio_event_iface_msg_t msg;
         gpio_set_level(get_green_led_gpio(), 0);
   
- static int dee = 10 / portTICK_PERIOD_MS;
+
         
         esp_err_t ret = audio_event_iface_listen(evt, &msg, dee); // portMAX_DELAY);
 		
@@ -614,12 +622,25 @@ void app_main(void)
 				ESP_LOGE(TAG, "[ * ] Equalizer set error ");
                 continue;
             }
-                
+
             i2s_stream_set_clk(i2s_stream_writer, music_info.sample_rates, music_info.bits, music_info.channels);
             dee = 100 / portTICK_RATE_MS;
             continue;
         }
+            //if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT
+            //&& msg.source == (void *) aac_decoder
+            //&& msg.cmd == AEL_MSG_CMD_REPORT_MUSIC_INFO) {
+            //audio_element_info_t music_info = {0};
+            //audio_element_getinfo(aac_decoder, &music_info);
 
+            //ESP_LOGI(TAG, "[ * ] Receive music info from aac decoder, sample_rates=%d, bits=%d, ch=%d",
+                     //music_info.sample_rates, music_info.bits, music_info.channels);
+
+            //audio_element_setinfo(i2s_stream_writer, &music_info);
+            //i2s_stream_set_clk(i2s_stream_writer, music_info.sample_rates, music_info.bits, music_info.channels);
+            //dee = 100 / portTICK_RATE_MS;
+            //continue;
+        //}
         /* restart stream when the first pipeline element (http_stream_reader in this case) receives stop event (caused by reading errors) */
         if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT && msg.source == (void *) http_stream_reader
             && msg.cmd == AEL_MSG_CMD_REPORT_STATUS && (int) msg.data == AEL_STATUS_ERROR_OPEN) {

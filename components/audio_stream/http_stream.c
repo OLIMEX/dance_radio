@@ -30,11 +30,11 @@
 #include "freertos/ringbuf.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "rom/queue.h"
 
 #include "esp_log.h"
 #include "errno.h"
 #include "http_stream.h"
-#include "audio_common.h"
 #include "audio_mem.h"
 #include "audio_element.h"
 #include "esp_system.h"
@@ -85,17 +85,17 @@ static esp_err_t http_stream_auto_connect_next_track(audio_element_handle_t el);
 static audio_codec_t get_audio_type(const char *content_type)
 {
     if (strcasecmp(content_type, "mp3") == 0 ||
-            strcasecmp(content_type, "audio/mp3") == 0 ||
-            strcasecmp(content_type, "audio/mpeg") == 0 ||
-            strcasecmp(content_type, "binary/octet-stream") == 0 ||
-            strcasecmp(content_type, "application/octet-stream") == 0) {
+        strcasecmp(content_type, "audio/mp3") == 0 ||
+        strcasecmp(content_type, "audio/mpeg") == 0 ||
+        strcasecmp(content_type, "binary/octet-stream") == 0 ||
+        strcasecmp(content_type, "application/octet-stream") == 0) {
         return AUDIO_CODEC_MP3;
     }
     if (strcasecmp(content_type, "audio/aac") == 0 ||
-            strcasecmp(content_type, "audio/x-aac") == 0 ||
-            strcasecmp(content_type, "audio/mp4") == 0 ||
-            strcasecmp(content_type, "audio/aacp") == 0 ||
-            strcasecmp(content_type, "video/MP2T") == 0) {
+        strcasecmp(content_type, "audio/x-aac") == 0 ||
+        strcasecmp(content_type, "audio/mp4") == 0 ||
+        strcasecmp(content_type, "audio/aacp") == 0 ||
+        strcasecmp(content_type, "video/MP2T") == 0) {
         return AUDIO_CODEC_AAC;
     }
     if (strcasecmp(content_type, "audio/wav") == 0) {
@@ -105,8 +105,11 @@ static audio_codec_t get_audio_type(const char *content_type)
         return AUDIO_CODEC_OPUS;
     }
     if (strcasecmp(content_type, "application/vnd.apple.mpegurl") == 0 ||
-            strcasecmp(content_type, "vnd.apple.mpegURL") == 0) {
-        return AUDIO_PLAYLIST;
+        strcasecmp(content_type, "vnd.apple.mpegURL") == 0) {
+        return AUDIO_PLAYLIST_M3U8;
+    }
+    if (strncasecmp(content_type, "audio/x-scpls", strlen("audio/x-scpls")) == 0) {
+        return AUDIO_PLAYLIST_PLS;
     }
     return AUDIO_CODEC_NONE;
 }
@@ -146,7 +149,7 @@ static int dispatch_hook(audio_element_handle_t self, http_stream_event_id_t typ
 
 static bool _is_playlist(audio_element_info_t *info, const char *uri)
 {
-    if (info->codec_fmt == AUDIO_PLAYLIST) {
+    if (info->codec_fmt == AUDIO_PLAYLIST_M3U8 || info->codec_fmt == AUDIO_PLAYLIST_PLS) {
         return true;
     }
     char *dot = strrchr(uri, '.');
@@ -331,6 +334,22 @@ static esp_err_t _resolve_playlist(audio_element_handle_t self, const char *uri)
     bool valid_playlist = false;
     bool is_playlist_uri = false;
 
+    if (info.codec_fmt == AUDIO_PLAYLIST_PLS) {
+        /* pls playlist */
+        while ((line = _client_read_line(http))) {
+            ESP_LOGD(TAG, "Playlist line = %s", line);
+            if (!strncmp(line, "File", sizeof("File") - 1)) { //this line contains url
+                int i = 4;
+                while (line[i++] != '='); //Skip till '='
+                _insert_to_playlist(http->playlist, line + i, uri);
+            } else {
+                /* Ignore all other lines */
+            }
+        }
+        return ESP_OK;
+    }
+
+    /* M3U8 playlist */
     while ((line = _client_read_line(http))) {
         ESP_LOGD(TAG, "Playlist line = %s", line);
         if (!valid_playlist && strcmp(line, "#EXTM3U") == 0) {
@@ -622,6 +641,7 @@ static esp_err_t _http_close(audio_element_handle_t self)
         http->client = NULL;
     }
     if (AEL_STATE_PAUSED != audio_element_get_state(self)) {
+        audio_element_report_pos(self);
         audio_element_info_t info = {0};
         audio_element_getinfo(self, &info);
         info.byte_pos = 0;
@@ -661,7 +681,7 @@ audio_element_handle_t http_stream_init(http_stream_cfg_t *config)
     cfg.task_prio = config->task_prio;
     cfg.task_core = config->task_core;
     cfg.out_rb_size = config->out_rb_size;
-    cfg.enable_multi_io = true;
+    cfg.multi_out_rb_num = config->multi_out_num;
     cfg.tag = "http";
 
     http->type = config->type;
@@ -753,7 +773,7 @@ esp_err_t http_stream_auto_connect_next_track(audio_element_handle_t el)
     audio_element_info_t info;
     audio_element_getinfo(el, &info);
     http_stream_t *http = (http_stream_t *)audio_element_getdata(el);
-    track_t * track = _playlist_get_next_track(el);
+    track_t *track = _playlist_get_next_track(el);
     if (track) {
         track->is_played = true;
         ESP_LOGD(TAG, "Finish %s", track->uri);

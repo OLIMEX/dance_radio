@@ -11,6 +11,7 @@
 #include "spi_master_lobo.h"
 #include "sdkconfig.h"
 #include "stmpe610.h"
+#include "board.h"
 
 #define TOUCH_TYPE_NONE		0
 #define TOUCH_TYPE_XPT2046	1
@@ -143,10 +144,10 @@
 #define STMPE610_ADDR 0x9a
 
 #define PIN_NUM_MISO -1		// SPI MISO
-#define PIN_NUM_MOSI 13		// SPI MOSI
-#define PIN_NUM_CLK  14		// SPI CLOCK pin
-#define PIN_NUM_CS   15		// Display CS pin
-#define PIN_NUM_DC   12		// Display command/data pin
+#define PIN_NUM_MOSI DISP_SPI_MOSI		// SPI MOSI
+#define PIN_NUM_CLK  DISP_SPI_CLK		// SPI CLOCK pin
+#define PIN_NUM_CS   DISP_SPI_CS		// Display CS pin
+#define PIN_NUM_DC   ILI9341_DC		// Display command/data pin
 #define PIN_NUM_TCS  0		// Touch screen CS pin (NOT used if USE_TOUCH=0)
 
 #define PIN_NUM_RST  -1  	// GPIO used for RESET control (#16)

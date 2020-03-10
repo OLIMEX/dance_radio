@@ -47,6 +47,8 @@ typedef struct {
     int                     task_stack;         /*!< Task stack size */
     int                     task_core;          /*!< Task running in core (0 or 1) */
     int                     task_prio;          /*!< Task priority (based on freeRTOS priority) */
+    int                     multi_out_num;      /*!< The number of multiple output */
+    bool                    uninstall_drv;      /*!< whether uninstall the i2s driver when stream destroyed*/
 } i2s_stream_cfg_t;
 
 #define I2S_STREAM_TASK_STACK           (3072+512)
@@ -71,10 +73,13 @@ typedef struct {
         .dma_buf_len = 300,                                                     \
         .use_apll = 1,                                                          \
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2,                               \
+        .tx_desc_auto_clear = true,                                             \
     },                                                                          \
     .i2s_port = 0,                                                              \
-    .use_alc = false,                                                   \
+    .use_alc = false,                                                           \
     .volume = 0,                                                                \
+    .multi_out_num = 0,                                                         \
+    .uninstall_drv = true,                                                      \
 }
 
 
@@ -93,10 +98,12 @@ typedef struct {
         .dma_buf_count = 3,                                                         \
         .dma_buf_len = 300,                                                         \
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2,                                   \
+        .tx_desc_auto_clear = true,                                                 \
     },                                                                              \
     .i2s_port = 0,                                                                  \
-    .use_alc = false,                                                       \
+    .use_alc = false,                                                               \
     .volume = 0,                                                                    \
+    .multi_out_num = 0,                                                             \
 }
 
 /**
@@ -130,7 +137,7 @@ esp_err_t i2s_stream_set_clk(audio_element_handle_t i2s_stream, int rate, int bi
  *
  * @param[in]  i2s_stream   The i2s element handle
  * @param[in]  volume       The volume of stream will be set.
- * 
+ *
  * @return
  *     - ESP_OK
  *     - ESP_FAIL
@@ -144,8 +151,8 @@ esp_err_t i2s_alc_volume_set(audio_element_handle_t i2s_stream, int volume);
  * @param[in]  volume       The volume of stream
  *
  * @return
- *     - ESP_OK  
- *     - ESP_FAIL  
+ *     - ESP_OK
+ *     - ESP_FAIL
  */
 esp_err_t i2s_alc_volume_get(audio_element_handle_t i2s_stream, int* volume);
 

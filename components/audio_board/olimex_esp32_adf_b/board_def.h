@@ -25,7 +25,7 @@
 #ifndef _AUDIO_BOARD_DEFINITION_H_
 #define _AUDIO_BOARD_DEFINITION_H_
 
-extern int orientation;
+
 // === Screen orientation constants ===
 #define PORTRAIT	0
 #define LANDSCAPE	1
@@ -60,6 +60,8 @@ extern int orientation;
 #define I2C_SDA	18
 #define I2C_SCL	23
 
+#define UARTTX	GPIO_NUM_12
+#define UARTRX 	34
 #define AUDIO_CODEC_DEFAULT_CONFIG(){                   \
         .adc_input  = AUDIO_HAL_ADC_INPUT_LINE1,        \
         .dac_output = AUDIO_HAL_DAC_OUTPUT_ALL,         \

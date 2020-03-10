@@ -60,6 +60,8 @@
 #define I2C_PORT I2C_NUM_0
 #define I2C_SDA	18
 
+#define UARTTX	GPIO_NUM_19
+#define UARTRX 	34
 #define AUDIO_CODEC_DEFAULT_CONFIG(){                   \
         .adc_input  = AUDIO_HAL_ADC_INPUT_LINE1,        \
         .dac_output = AUDIO_HAL_DAC_OUTPUT_ALL,         \
