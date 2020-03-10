@@ -40,6 +40,14 @@ Configure the example:
 
 - Set up the Wi-Fi connection by running `menuconfig` > `Example Configuration` and filling in `WiFi SSID` and `WiFi Password`.
 
+- Choice used Audio board type:  menuconfig > Audio board select...
+
+  Optional:
+
+- Choice used Led stripe: menuconfig > Led stripe > Led stripe... (currently only Led stripe 8 is supported)
+
+- Choice led stripe mode: menuconfig > Led stripe > Led stripe mode...
+
 Run the example:
 
 ```bash

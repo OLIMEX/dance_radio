@@ -59,6 +59,7 @@
 #define ILI9341_BCKL -1
 #define I2C_PORT I2C_NUM_0
 #define I2C_SDA	18
+#define I2C_SCL	23
 
 #define UARTTX	GPIO_NUM_19
 #define UARTRX 	34

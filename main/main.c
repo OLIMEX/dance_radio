@@ -576,7 +576,7 @@ void app_main(void)
      ESP_LOGW(TAG, "[ * ] *    Next station: <Play>");
      ESP_LOGW(TAG, "[ * ] * Presset station: <Set>");
      
-	vTaskDelay(1000 / portTICK_RATE_MS);
+
 	
 	
 	led_strip.access_semaphore = xSemaphoreCreateBinary();
@@ -592,7 +592,13 @@ void app_main(void)
 
   ESP_LOGI(TAG, "Starting audio pipeline...");
   	audio_pipeline_run(pipeline);
-  
+              audio_element_info_t music_info = {0};
+            audio_element_getinfo(aac_decoder, &music_info);
+                  
+                audio_element_setinfo(i2s_stream_writer, &music_info); 
+                alc_volume_setup_set_channel(alc_el, music_info.channels);
+				alc_volume_setup_set_volume(alc_el, ALC_VOLUME_SET);
+	
   
     while (1) {
 	       
@@ -618,7 +624,7 @@ void app_main(void)
             
              ESP_LOGI(TAG, "[ * ] Receive music info from aac decoder, sample_rates=%d, bits=%d, ch=%d",
                      music_info.sample_rates, music_info.bits, music_info.channels);
-                         	if (equalizer_set_info(equalizer, music_info.sample_rates, music_info.channels) != ESP_OK) {
+               	if (equalizer_set_info(equalizer, music_info.sample_rates, music_info.channels) != ESP_OK) {
 				ESP_LOGE(TAG, "[ * ] Equalizer set error ");
                 continue;
             }
@@ -627,20 +633,7 @@ void app_main(void)
             dee = 100 / portTICK_RATE_MS;
             continue;
         }
-            //if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT
-            //&& msg.source == (void *) aac_decoder
-            //&& msg.cmd == AEL_MSG_CMD_REPORT_MUSIC_INFO) {
-            //audio_element_info_t music_info = {0};
-            //audio_element_getinfo(aac_decoder, &music_info);
 
-            //ESP_LOGI(TAG, "[ * ] Receive music info from aac decoder, sample_rates=%d, bits=%d, ch=%d",
-                     //music_info.sample_rates, music_info.bits, music_info.channels);
-
-            //audio_element_setinfo(i2s_stream_writer, &music_info);
-            //i2s_stream_set_clk(i2s_stream_writer, music_info.sample_rates, music_info.bits, music_info.channels);
-            //dee = 100 / portTICK_RATE_MS;
-            //continue;
-        //}
         /* restart stream when the first pipeline element (http_stream_reader in this case) receives stop event (caused by reading errors) */
         if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT && msg.source == (void *) http_stream_reader
             && msg.cmd == AEL_MSG_CMD_REPORT_STATUS && (int) msg.data == AEL_STATUS_ERROR_OPEN) {
