@@ -25,6 +25,7 @@ cd ~/
 git clone --recursive https://github.com/espressif/esp-adf.git
 cd esp-adf
 git submodule update --init
+export ADF_PATH=$PWD
 cd esp-idf
 ./install.sh
 . ./export.sh
@@ -32,6 +33,9 @@ cd esp-idf
 
 Load the example:
 ```bash
+cd ~/
+mkdir espwork
+cd espwork
 git clone https://github.com/d3v1c3nv11/dance_radio.git
 cd dance_radio
 make menuconfig
