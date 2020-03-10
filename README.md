@@ -69,6 +69,3 @@ Loudness OFF: <record>
 Graphical part of project is based on loboris/ESP32_TFT_library https://github.com/loboris/ESP32_TFT_library
 
 
-
-known issues: audio stream is synchronized up to 30 sec after first start
-
