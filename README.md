@@ -1,4 +1,4 @@
-# Dance Radio // WORK IN PROGRESS
+# Dance Radio 
 
 [![Watch the video](https://img.youtube.com/vi/gBpEz3MsBD0/maxresdefault.jpg)](https://youtu.be/gBpEz3MsBD0) 
 
