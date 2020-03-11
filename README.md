@@ -2,10 +2,22 @@
 
 [![Watch the video](https://img.youtube.com/vi/gBpEz3MsBD0/maxresdefault.jpg)](https://youtu.be/gBpEz3MsBD0) 
 
-## Compatibility
+## what you need to complete
 
 ESP32-ADF
 https://www.olimex.com/Products/IoT/ESP32/ESP32-ADF/open-source-hardware
+
+USB-CABLE-A-MICRO-1.8M
+https://www.olimex.com/Products/Components/Cables/USB-CABLE-A-MICRO-1.8M/
+
+LED-STRIPE-8
+https://www.olimex.com/Products/Components/LEDs/LED-STRIPE-8/
+
+MOD-LCD2.8RTP
+https://www.olimex.com/Products/Modules/LCD/MOD-LCD2-8RTP/open-source-hardware
+
+UEXTx5
+https://www.olimex.com/Products/Modules/Interface/UEXTx5/open-source-hardware
 
 ## Usage
 
