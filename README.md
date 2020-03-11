@@ -21,6 +21,7 @@ Prepare the audio board:
 
 # Get ESP-ADF
 ```bash
+sudo apt-get install git wget flex bison gperf python python-pip python-setuptools python-serial python-click python-cryptography python-future python-pyparsing python-pyelftools cmake ninja-build ccache libffi-dev libssl-dev
 cd ~/
 git clone --recursive https://github.com/espressif/esp-adf.git
 cd esp-adf
