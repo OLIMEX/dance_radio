@@ -46,8 +46,8 @@
 #define HEADPHONE_DETCET          -1 //GPIO_NUM_19
 #define PA_ENABLE_GPIO            -1 //GPIO_NUM_21
 
-#define GREEN_LED_GPIO            GPIO_NUM_22
-#define IR_RED_RXD			GPIO_NUM_4
+#define GREEN_LED_GPIO          GPIO_NUM_22
+#define IR_RED_RXD		GPIO_NUM_4
 
 #define SPI_PORT HSPI_HOST
 #define DISP_SPI_MOSI 2

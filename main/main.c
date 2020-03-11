@@ -10,7 +10,7 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-#define tft_display
+
 
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -41,16 +41,14 @@
 #include "periph_button.h"
 #include "equalizer.h"
 #include "audio_alc.h"
+
+
 #include "led_strip/led_strip.h"
 
-
-#ifdef tft_display
-
+#if CONFIG_EXAMPLE_DISPLAY_TYPE > 0
 #define SPI_BUS TFT_HSPI_HOST
 #include "tft.h"
 #include "tftspi.h"
-
-
 #endif
 
 #define	f31Hz	0
@@ -68,7 +66,6 @@
 #define NEXT    1
 #define PRESSET_RADIO 1
 #define VOLUME_MUTED 10
-#define AUDIO_HAL_VOL_DEFAULT 60
 #define ALC_VOLUME_SET (0)
 TimerHandle_t xTimer;
 uint8_t busy = 0;
@@ -116,12 +113,11 @@ static const char *radio[] = {
   //  "http://icecast.omroep.nl/radio1-bb-aac","Radio 1",
 };
 #endif
+
 #define LED_STRIP_LENGTH 8U
 #define LED_STRIP_RMT_INTR_NUM 19U
-
 struct led_color_t led_strip_buf_1[LED_STRIP_LENGTH];
 struct led_color_t led_strip_buf_2[LED_STRIP_LENGTH];
-
 struct led_strip_t led_strip = {
     .rgb_led_type = RGB_LED_TYPE_WS2812,
     .rmt_channel = RMT_CHANNEL_1,
@@ -148,29 +144,16 @@ int radio_index=0;
     audio_board_handle_t board_handle;
     audio_event_iface_handle_t evt;
 	int player_volume = AUDIO_HAL_VOL_DEFAULT;
-	static struct tm* tm_info;
-static char tmp_buff[64];
+
+
 static uint8_t curent_radio;
 static uint8_t tune_request = 255;
-static time_t time_now, time_last = 0;
+
+#if CONFIG_EXAMPLE_DISPLAY_TYPE > 0
 static const char *file_fonts[3] = {"/spiffs/fonts/DotMatrix_M.fon", "/spiffs/fonts/Ubuntu.fon", "/spiffs/fonts/Grotesk24x48.fon"};
-//---------------------
-/*
-static void _dispTime()
-{
-	Font curr_font = cfont;
-    if (_width < 240) TFT_setFont(DEF_SMALL_FONT, NULL);
-	else TFT_setFont(DEFAULT_FONT, NULL);
-
-    time(&time_now);
-	time_last = time_now;
-	tm_info = localtime(&time_now);
-	sprintf(tmp_buff, "%02d:%02d:%02d", tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec);
-	TFT_print(tmp_buff, CENTER, _height-TFT_getfontheight()-5);
-
-    cfont = curr_font;
-} */	
+#endif
 static void disp_volume(int volume){
+#if CONFIG_EXAMPLE_DISPLAY_TYPE > 0	
 	TFT_resetclipwin();
 	_fg = TFT_YELLOW;
 	_height = 320;
@@ -181,11 +164,12 @@ static void disp_volume(int volume){
 	TFT_fillRect(1, _height-TFT_getfontheight()-8, volume * 2, TFT_getfontheight()+7, TFT_YELLOW);
 	TFT_drawRect(0, _height-TFT_getfontheight()-9, _width-1, TFT_getfontheight()+8, TFT_CYAN);
 	//TFT_print("VOLUME", CENTER, 4);
+#endif	
 	ESP_LOGI(TAG, "[ * ]  Volume bar set to %d",volume);
 }
-	
-static void disp_header(char *info)
+static void disp_header(const char *info)
 {
+#if CONFIG_EXAMPLE_DISPLAY_TYPE > 0	
 	//TFT_fillScreen(TFT_BLACK);
 	TFT_resetclipwin();
 
@@ -212,7 +196,7 @@ static void disp_header(char *info)
 	//_dispTime();
 
 	_bg = TFT_BLACK;
-	
+#endif	
 }	
 
 int _http_stream_event_handle(http_stream_event_msg_t *msg)
@@ -275,6 +259,7 @@ void tune_radio(int radio_index){
 			vTaskDelay(500 / portTICK_RATE_MS);
 	busy = 0;		
 }
+
  void vTimerCallback( TimerHandle_t xTimer )
  {
 
@@ -286,7 +271,7 @@ void tune_radio(int radio_index){
     ulCount++;
     vTimerSetTimerID( xTimer, ( void * ) ulCount );
     
-    
+#if CONFIG_EXAMPLE_DISPLAY_TYPE > 0    
   //  gpio_set_level(get_green_led_gpio(), ulCount & 1);
     int tx, ty, tz;        
       if (TFT_read_touch(&tx, &ty, 0)){
@@ -305,19 +290,21 @@ void tune_radio(int radio_index){
 		 
 
 		}
+#endif		
  }
+
 void app_main(void)
 {
  static int dee = 10 / portTICK_PERIOD_MS;
-	int ret;
+
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         err = nvs_flash_init();
     }
     radio_index = PRESSET_RADIO;
- #ifdef tft_display
-     
+#if CONFIG_EXAMPLE_DISPLAY_TYPE > 0    
+   int ret;  
       // ==== Set display type
 	 tft_disp_type = DISP_TYPE_ILI9341;
       ESP_LOGI(TAG, "[ * ]  Initialize tft display %d ILI9341",CONFIG_EXAMPLE_DISPLAY_TYPE);
@@ -411,6 +398,7 @@ void app_main(void)
 
 	
 #endif      
+
 
      tcpip_adapter_init();
     
@@ -539,8 +527,8 @@ void app_main(void)
     
     
      gpio_set_direction(get_green_led_gpio(), GPIO_MODE_OUTPUT);
-     
- #ifdef tft_display
+#if CONFIG_EXAMPLE_DISPLAY_TYPE > 0     
+
     #if USE_TOUCH == TOUCH_TYPE_STMPE610
     
     
@@ -551,10 +539,8 @@ void app_main(void)
     #endif
 			disp_header(radio[((radio_index<<1)|1)]);
 			disp_volume(AUDIO_HAL_VOL_DEFAULT);
-			
-
- #endif        
-   
+ #endif 			
+   	player_volume = AUDIO_HAL_VOL_DEFAULT;
     xTimer = xTimerCreate
                    ( "Timer",
                        50 / portTICK_RATE_MS,
@@ -568,7 +554,11 @@ void app_main(void)
                  state. */
              }
     //vTaskStartScheduler();
-   
+ 
+
+
+
+ 
    
      
      ESP_LOGW(TAG, "[ * ]     Touch buttons:");

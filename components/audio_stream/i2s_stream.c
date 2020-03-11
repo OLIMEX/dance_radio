@@ -246,6 +246,7 @@ static int _i2s_process(audio_element_handle_t self, char *in_buffer, int in_len
 #if CONFIG_SIMPLE_VU == 1
 #define SIMPLE_VU
 #endif
+
 #if CONFIG_VU_TERMINAL == 1
 #define VU_TERMINAL  
 #endif

@@ -153,4 +153,5 @@
 #define STMPE_GPIO_CLR_PIN 0x11
 #define STMPE_GPIO_DIR 0x13
 #define STMPE_GPIO_ALT_FUNCT 0x17
+
 #endif /* _STMPE610_H */

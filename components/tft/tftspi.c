@@ -7,7 +7,7 @@
  * USING DIRECT or DMA SPI TRANSFER MODEs
  *
 */
-
+//#if CONFIG_EXAMPLE_DISPLAY_TYPE != 0
 #include <string.h>
 #include "tftspi.h"
 #include "esp_system.h"
@@ -1070,4 +1070,4 @@ void TFT_display_init()
 #endif
 }
 
-
+//#endif

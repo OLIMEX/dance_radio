@@ -35,7 +35,6 @@
 #define SDCARD_OPEN_FILE_NUM_MAX  5
 #define SDCARD_INTR_GPIO          -1 //GPIO_NUM_34
 
-
 #define BUTTON_REC_ID             GPIO_NUM_36
 #define BUTTON_MODE_ID            GPIO_NUM_39
 #define BUTTON_SET_ID             TOUCH_PAD_NUM9
@@ -47,8 +46,8 @@
 #define HEADPHONE_DETCET          -1 //GPIO_NUM_19
 #define PA_ENABLE_GPIO            -1 //GPIO_NUM_21
 
-#define GREEN_LED_GPIO            GPIO_NUM_2
-#define IR_RED_RXD			GPIO_NUM_22
+#define GREEN_LED_GPIO          GPIO_NUM_2
+#define IR_RED_RXD		GPIO_NUM_22
 
 #define SPI_PORT HSPI_HOST
 #define DISP_SPI_MOSI 13

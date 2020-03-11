@@ -7,6 +7,9 @@
 #ifndef _TFTSPI_H_
 #define _TFTSPI_H_
 
+
+
+
 #include "tftspi.h"
 #include "spi_master_lobo.h"
 #include "sdkconfig.h"
@@ -36,6 +39,12 @@
 #define DISP_TYPE_ST7735R	4
 #define DISP_TYPE_ST7735B	5
 #define DISP_TYPE_MAX		6
+
+
+
+
+
+
 
 #if CONFIG_EXAMPLE_DISPLAY_TYPE == 1
 
@@ -218,7 +227,6 @@
 //----------------------------------------------------------------------------
 
 #endif  // CONFIG_EXAMPLE_ESP_WROVER_KIT
-
 
 // ##############################################################
 // #### Global variables                                     ####
@@ -704,5 +712,5 @@ int stmpe610_get_touch(uint16_t *x, uint16_t *y, uint16_t *z);
 uint32_t stmpe610_getID();
 
 // ===============================================================================
-
 #endif
+

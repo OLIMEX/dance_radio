@@ -13,7 +13,61 @@ config WIFI_PASSWORD
 		WiFi password (WPA or WPA2) for the example to use.
 
 		Can be left blank if the network has no security set.
+choice LED_STRIPE
+    prompt "Led stripe"
+    default LED_STRIPE_8
+    help
+        Select an led strip to use with the ESP-ADF
 
+config LED_STRIPE_NONE
+    bool "LED_STRIPE-NONE"        
+config LED_STRIPE_8
+    bool "LED_STRIPE-8"
+config LED_STRIPE_16
+    bool "LED_STRIPE-16"
+config LED_STRIPE_32
+    bool "LED_STRIPE-32"    
+endchoice
+
+choice LED_STRIPE_MODE
+    prompt "Led stripe mode"
+    default BEATER
+    help
+        Select mode
+config SIMPLE_VU	
+	bool "Classic VU meter"
+config BEATER	
+	bool "Beat Lights"	
+endchoice	
+config VU_TERMINAL
+	bool
+	prompt "VU meter on terminal"	
+      help
+        Show a classic VU meter on terminal
+config EXAMPLE_DISPLAY_TYPE
+    int
+    default 0 if EXAMPLE_DISPLAY_TYPE0
+    default 1 if EXAMPLE_DISPLAY_TYPE1
+    default 2 if EXAMPLE_DISPLAY_TYPE2
+    default 3 if EXAMPLE_DISPLAY_TYPE3
+    default 4 if EXAMPLE_DISPLAY_TYPE4
+    choice
+        prompt "Select predefined display configuration"
+        default EXAMPLE_DISPLAY_TYPE4
+        help
+            Select predefined display configuration
+    
+        config EXAMPLE_DISPLAY_TYPE0
+            bool "None"
+        config EXAMPLE_DISPLAY_TYPE1
+            bool "ESP-WROVER-KIT Display"
+        config EXAMPLE_DISPLAY_TYPE2
+            bool "Adafruit TFT Feather display"
+        config EXAMPLE_DISPLAY_TYPE3
+            bool "M5Stack TFT display"
+        config EXAMPLE_DISPLAY_TYPE4
+            bool "Olimex MOD-LCD2.8RTP display"
+    endchoice        
 endmenu
 menu "TFT Display DEMO Configuration"
 
@@ -41,29 +95,6 @@ config SPIFFS_LOG_PAGE_SIZE
     help
 	Set it to the phisycal page size og the used SPI Flash chip.
 
-config EXAMPLE_DISPLAY_TYPE
-    int
-    default 0 if EXAMPLE_DISPLAY_TYPE0
-    default 1 if EXAMPLE_DISPLAY_TYPE1
-    default 2 if EXAMPLE_DISPLAY_TYPE2
-    default 3 if EXAMPLE_DISPLAY_TYPE3
-    default 4 if EXAMPLE_DISPLAY_TYPE4
-    choice
-        prompt "Select predefined display configuration"
-        default EXAMPLE_DISPLAY_TYPE4
-        help
-            Select predefined display configuration
-    
-        config EXAMPLE_DISPLAY_TYPE0
-            bool "None"
-        config EXAMPLE_DISPLAY_TYPE1
-            bool "ESP-WROVER-KIT Display"
-        config EXAMPLE_DISPLAY_TYPE2
-            bool "Adafruit TFT Feather display"
-        config EXAMPLE_DISPLAY_TYPE3
-            bool "M5Stack TFT display"
-        config EXAMPLE_DISPLAY_TYPE4
-            bool "Olimex MOD-LCD2.8RTP display"
-    endchoice
+
 
 endmenu
