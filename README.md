@@ -36,7 +36,7 @@ Load the example:
 cd ~/
 mkdir espwork
 cd espwork
-git clone https://github.com/d3v1c3nv11/dance_radio.git
+git clone https://github.com/OLIMEX/dance_radio
 cd dance_radio
 make menuconfig
 ```
